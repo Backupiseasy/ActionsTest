@@ -1,5 +1,5 @@
 # description of this workflow, can be anything you want
-name: Package and release alpha and beta version
+name: Package and release alpha and beta version TEST
 
 on:
   create:
