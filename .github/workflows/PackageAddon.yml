@@ -3,6 +3,8 @@ name: Package and release TEST
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "**-beta**"
       - "**-alpha**"
