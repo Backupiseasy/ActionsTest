@@ -1,8 +1,8 @@
 # description of this workflow, can be anything you want
-name: Package and release alpha and beta version TEST
+name: Package and release
 
 on:
-  create:
+  push:
     tags:
       - "**-beta**"
       - "**-alpha**"
