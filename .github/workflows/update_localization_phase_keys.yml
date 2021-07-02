@@ -16,6 +16,12 @@ jobs:
         # note: checkout@v2 breaks git history, so generating a changelog and
         # file naming for non-tagged builds will not work properly
 
+      - name: Install and run Luacheck
+        uses: nebularg/actions-luacheck@v1
+        with:
+          args: "--no-color -q"
+          annotate: warning
+          
       - name: Extract phrase keys (strings that have to be tra-nslated) from lua files
         run: lua Source/ExtractPhraseKeysForLocalization.lua .
 
