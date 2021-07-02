@@ -25,7 +25,6 @@ do_import() {
 
   echo -n "Importing $namespace..."
   result=$( curl -sS -0 -X POST -w "%{http_code}" -o "$tempfile" \
-    -H "X-Api-Token: $CF_API_KEY" \
     -F "metadata={ language: \"enUS\", \"missing-phrase-handling\": \"DoNothing\" }" \
     -F "localizations=<$file" \
     "https://www.curseforge.com/api/projects/21217/localization/import"
