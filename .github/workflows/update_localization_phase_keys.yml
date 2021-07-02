@@ -20,7 +20,7 @@ jobs:
         uses: leafo/gh-actions-lua@v8.0.0
           
       - name: Install luafilesystem
-        run: apt-get install -y lua-filesystem
+        run: sudo apt-get install -y lua-filesystem
         
       - name: Extract phrase keys (strings that have to be tra-nslated) from lua files
         run: lua Source/ExtractPhraseKeysForLocalization.lua .
