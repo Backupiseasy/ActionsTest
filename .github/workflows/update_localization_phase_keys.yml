@@ -3,7 +3,7 @@ name: Upload phrase keys for translation to CurseForge
 on:
    push:
      branches:
-       - master
+       - main
 
 jobs:
   build:
