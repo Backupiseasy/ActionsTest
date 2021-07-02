@@ -6,6 +6,8 @@ local IGNORE_LIST = {
   ".github",
   ".idea",
   ".release",
+  ".lua",
+  ".luarocks",
   "Libs",
   "Locales",
   "Source",
