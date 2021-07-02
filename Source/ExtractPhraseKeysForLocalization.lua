@@ -44,7 +44,8 @@ local function ParseFile(file_name)
   local text = file:read("*all")
   file:close()
 
-  for match in string.gmatch(text, "L%[\"(.-)\"%]") do
+  print (file_name)
+  for match in string.gmatch(text or "", "L%[\"(.-)\"%]") do
     if not match:find('"%.%.(.+)%.%."') then
       phrase_keys[#phrase_keys + 1] = match
     end
