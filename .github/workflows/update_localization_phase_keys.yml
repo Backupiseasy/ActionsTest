@@ -4,7 +4,7 @@ on:
    push:
      branches:
        - main
-
+       
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,15 +18,17 @@ jobs:
 
       - name: Install Lua
         uses: leafo/gh-actions-lua@v8.0.0
-                 
+          
+      - name: Install Luarocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Install LuaFileSystem
+        run: luarocks install luafilesystem
+        
       - name: Extract phrase keys (strings that have to be tra-nslated) from lua files
         run: lua Source/ExtractPhraseKeysForLocalization.lua .
-      
-      - name: Output
-        run: echo "::set-output name=export::$(cat ./phrase_keys_export_file.txt)\n"
-        id: run_tests
 
-#       - name: Update CurseForge Translations
-#         run: bash Source/upload_localization_phrase_keys.sh
-#         env:
-#           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update CurseForge Translations
+        run: bash Source/upload_localization_phrase_keys.sh
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
