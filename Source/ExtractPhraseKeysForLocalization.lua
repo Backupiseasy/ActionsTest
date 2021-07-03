@@ -1,37 +1,70 @@
 local lfs = require("lfs")
 
 -- Ignore the following directories or files 
-local IGNORE_LIST = {
+local BLOCK_FILES_AND_DIRS = {
   ".git",
   ".github",
   ".idea",
   ".release",
-  ".lua", ".luarocks", ".install",
   "Libs",
   "Locales",
   "Source",
   "Test",
 }
 
-function string_starts(String,Start)
+local ALLOW_FILES_AND_DIRS = {
+  "Elements",
+  "Fonts",
+  "Functions",
+  "Styles",
+  "TidyPlatesInternal",
+  "Widgets",
+  -- Also, all Lua files in the working directory are scanned.
+}
+
+local function string_starts(String,Start)
   return string.sub(String,1,string.len(Start))==Start
+end
+
+local function string_ends(str, ending)
+  return ending == "" or str:sub(-#ending) == ending
 end
 
 -- This function takes two arguments:
 -- - the directory to walk recursively;
 -- - an optional function that takes a file name as argument, and returns a boolean.
-function ScanDirectory(self, fn)
+function ScanDirectory(self, working_dir)
   return coroutine.wrap(function()
     for f in lfs.dir(self) do
       if f ~= "." and f ~= ".." then
         local _f = self .. "/" .. f
-        if not fn or fn(_f) then
+        if lfs.attributes(_f, "mode") == "file" and string_ends(_f, ".lua") then
           coroutine.yield(_f)
-        end
-        if lfs.attributes(_f, "mode") == "directory" then
-          for n in ScanDirectory(_f, fn) do
-            coroutine.yield(n)
+        elseif lfs.attributes(_f, "mode") == "directory" then
+          local allow_dir = true
+
+          for _, block_prefix in ipairs(BLOCK_FILES_AND_DIRS) do
+            if string_starts(_f, working_dir .. "/" .. block_prefix) then
+              allow_dir = false
+              break
+            end
           end
+
+          if allow_dir then
+            allow_dir = false
+            for _, allow_prefix in ipairs(ALLOW_FILES_AND_DIRS) do
+              if string_starts(_f, working_dir .. "/" .. allow_prefix) then
+                allow_dir = true
+                break
+              end
+            end
+  
+            if allow_dir then
+              for n in ScanDirectory(_f, working_dir, fn) do
+                coroutine.yield(n)
+              end
+            end
+          end 
         end
       end
     end
@@ -45,8 +78,7 @@ local function ParseFile(file_name)
   local text = file:read("*all")
   file:close()
 
-  print (file_name)
-  for match in string.gmatch(text or "", "L%[\"(.-)\"%]") do
+  for match in string.gmatch(text, "L%[\"(.-)\"%]") do
     if not match:find('"%.%.(.+)%.%."') then
       phrase_keys[#phrase_keys + 1] = match
     end
@@ -58,23 +90,10 @@ end
 do
   -- Get the current directory (must be Addons/TidyPlates_ThreatPlates)
   local working_dir = arg[1] or os.getenv("PWD")
-  
-  local file_list = ScanDirectory(working_dir)
-  local CheckFile = function(self)
-    local file_with_phrase_keys = self:match("%.lua$")
-    
-    for i, prefix in ipairs(IGNORE_LIST) do
-      if string_starts(self, working_dir .. "/" .. prefix) then
-        file_with_phrase_keys = false
-      end
-    end 
-
-    return file_with_phrase_keys
-  end
-  
+ 
   local phrase_keys = {}
 
-  for file_name in ScanDirectory(working_dir, CheckFile) do
+  for file_name in ScanDirectory(working_dir, working_dir) do
     local phrase_keys_in_file = ParseFile(file_name)
     for _, phrase_key in ipairs(phrase_keys_in_file) do
       phrase_keys[phrase_key] = true
