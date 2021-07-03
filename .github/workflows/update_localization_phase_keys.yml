@@ -28,7 +28,11 @@ jobs:
       - name: Extract phrase keys (strings that have to be tra-nslated) from lua files
         run: lua Source/ExtractPhraseKeysForLocalization.lua .
 
-      - name: Update CurseForge Translations
-        run: bash Source/upload_localization_phrase_keys.sh
-        env:
-          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      - name: Output
+        run: echo "::set-output name=export::$(cat ./phrase_keys_export_file.txt)\n"
+        id: run_tests
+        
+      # - name: Update CurseForge Translations
+      #   run: bash Source/upload_localization_phrase_keys.sh
+      #   env:
+      #     GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
